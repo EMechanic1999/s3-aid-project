@@ -16,6 +16,24 @@ s3 = boto3.client(
     aws_secret_access_key=AWS_SECRET_ACCESS_KEY
 )
 
+def upload_file():
+    """Upload the file 'myfile.txt' from D: drive to the specified S3 key in the 'b-wing/' prefix."""
+    local_file_path = r"D:\myfile.txt"  
+    s3_key = "b-wing/myfile.txt"  
+
+    try:
+        print(f"Uploading '{local_file_path}' to 's3://{S3_BUCKET}/{s3_key}'")
+        s3.upload_file(local_file_path, S3_BUCKET, s3_key)
+        print(f"Successfully uploaded '{local_file_path}' to 's3://{S3_BUCKET}/{s3_key}'")
+    except FileNotFoundError:
+        print(f"Local file '{local_file_path}' not found.")
+    except s3.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == 'AccessDenied':
+            print(f"Access denied when uploading to '{s3_key}'.")
+        else:
+            print(f"An error occurred: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 def list_files():
     """List all files in the 'b-wing/' prefix of the S3 bucket."""
@@ -39,6 +57,7 @@ def list_files():
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+if __name__ == '__main__':
+    upload_file()
 
-    # Then, list all files in the 'b-wing/' prefix
     list_files()
